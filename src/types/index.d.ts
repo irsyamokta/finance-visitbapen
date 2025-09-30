@@ -82,3 +82,34 @@ export interface ISettingPayload {
     name: string,
     category: string,
 }
+
+export interface Transaction {
+    id: string;
+    user_id: string;
+    title: string;
+    type: "income" | "expense";
+    category: string;
+    amount: number;
+    finance_role: string;
+    transaction_date: string;
+    order_id: string | null;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface DashboardStats {
+    saldo: number;
+    total_income: number;
+    total_expense: number;
+    total_transactions: number;
+}
+
+export interface DashboardResponse {
+    status: "success" | "error";
+    data: {
+        stats: DashboardStats;
+        recent_transactions: Transaction[];
+        overview: Transaction[];
+    };
+}
+

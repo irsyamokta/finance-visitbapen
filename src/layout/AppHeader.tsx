@@ -2,24 +2,21 @@ import { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-import Button from "../components/ui/button/Button";
-import { ModalTransaction } from "../components/modal/ModalTransaction";
 import DashboardTab from "../components/tabs/DashboardTab";
 import DesktopNav from "../components/navigation/DesktopNav";
 import MobileNav from "../components/navigation/MobileNav";
 import TransactionTab from "../components/tabs/TransactionTab";
-import FeatureComingSoon from "../components/common/FeatureCommingSoon";
+import AnalyticsTab from "../components/tabs/AnalyticsTab";
 
-import { LuPlus } from "react-icons/lu";
 import { FiLogOut } from "react-icons/fi";
 
 import LogoColor from "../assets/logo/logo-color.png";
 
 const AppHeader: React.FC = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,6 +41,10 @@ const AppHeader: React.FC = () => {
     }
   };
 
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+    user?.name || "User"
+  )}&background=d1d5db&color=111827`;
+
   return (
     <>
       {/* Header */}
@@ -55,22 +56,30 @@ const AppHeader: React.FC = () => {
           </div>
 
           {/* Right (Desktop Only) */}
-          <div className="hidden lg:flex items-center gap-3">
-            <Button
-              variant="default"
-              className="border border-primary"
-              onClick={() => setIsModalOpen(true)}
-            >
-              <LuPlus />
-              Tambah
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleLogout}
-            >
-              <FiLogOut />
-              Logout
-            </Button>
+          <div className="flex items-center gap-3 relative">
+            {/* Avatar & Dropdown */}
+            <div className="relative">
+              <img
+                src={avatarUrl}
+                alt="User Avatar"
+                onClick={() => setIsDropdownOpen((prev) => !prev)}
+                className="w-12 h-12 rounded-full cursor-pointer select-none border"
+              />
+
+              {isDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-50">
+                  <div className="px-4 py-2 text-gray-700 font-medium border-b">
+                    {user?.name || "User"}
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
+                  >
+                    <FiLogOut /> Logout
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -82,21 +91,14 @@ const AppHeader: React.FC = () => {
         activeTab={activeTab}
         setActiveTab={handleSetActiveTab}
         handleLogout={handleLogout}
-        handleOpenModal={() => setIsModalOpen(true)}
       />
 
       {/* Content Tab */}
       <div className="px-4 lg:px-24 py-6 pb-24 lg:pb-6">
         {activeTab === "dashboard" && <DashboardTab />}
         {activeTab === "transactions" && <TransactionTab />}
-        {activeTab === "analytics" && <FeatureComingSoon />}
+        {activeTab === "analytics" && <AnalyticsTab />}
       </div>
-
-      {/* Modal */}
-      <ModalTransaction
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
     </>
   );
 };

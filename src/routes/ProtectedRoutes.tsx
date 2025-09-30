@@ -14,7 +14,7 @@ const ProtectedRoute = ({ children }: PrivateRouteProps) => {
         return <Spinner />;
     }
 
-    if (!user || !['finance_batik', 'finance_tourism'].includes(user.role)) {
+    if (!user || !['finance_batik', 'finance_tourism', 'admin_batik', 'admin_tourism'].includes(user.role)) {
         return <Navigate to="/" />;
     }
 

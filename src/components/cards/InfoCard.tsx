@@ -1,12 +1,7 @@
 import EmptyState from "../empty/EmptyState";
 import { FiClock, FiTrendingUp, FiTrendingDown } from "react-icons/fi";
-
-interface Transaction {
-    subtitle: string;
-    date: string;
-    category: string;
-    amount: string;
-}
+import { capitalizeWords } from "../../utils/capitalizeWord";
+import { Transaction } from "../../types";
 
 interface InfoCardProps {
     type: "transaction" | "overview";
@@ -20,11 +15,10 @@ const InfoCard: React.FC<InfoCardProps> = ({ type, title, transactions }) => {
 
     if (transactions && transactions.length > 0) {
         transactions.forEach((t) => {
-            const numeric = parseInt(t.amount.replace(/[^\d]/g, ""));
-            if (t.amount.startsWith("+")) {
-                income += numeric;
+            if (t.type === "income") {
+                income += t.amount;
             } else {
-                expense += numeric;
+                expense += t.amount;
             }
         });
     }
@@ -39,15 +33,24 @@ const InfoCard: React.FC<InfoCardProps> = ({ type, title, transactions }) => {
 
     if (expense > income) {
         status = "Peringatan: Pengeluaran Melebihi Pendapatan!";
-        description = "Pengeluaran Anda lebih besar daripada penghasilan Anda. Pertimbangkan untuk mengurangi pengeluaran.";
+        description =
+            "Pengeluaran Anda lebih besar daripada penghasilan Anda. Pertimbangkan untuk mengurangi pengeluaran.";
         progress = Math.min(100, Math.round((income / expense) * 100));
         barColor = "bg-red-500";
         statusColor = "text-red-600";
         boxColor = "bg-red-50";
         overviewIcon = <FiTrendingDown className="text-red-500" size={24} />;
     } else {
-        progress = Math.min(100, Math.round((income / (income + expense)) * 100));
+        progress = Math.min(
+            100,
+            Math.round((income / (income + expense)) * 100)
+        );
     }
+
+    const formatAmount = (t: Transaction) => {
+        const prefix = t.type === "income" ? "+" : "-";
+        return `${prefix}Rp ${t.amount.toLocaleString()}`;
+    };
 
     return (
         <div className="bg-white rounded-2xl border border-slate-200">
@@ -66,10 +69,10 @@ const InfoCard: React.FC<InfoCardProps> = ({ type, title, transactions }) => {
                         {transactions.length > 0 ? (
                             <div className="space-y-3">
                                 {transactions.map((t, idx) => {
-                                    const isIncome = t.amount.startsWith("+");
+                                    const isIncome = t.type === "income";
                                     return (
                                         <div
-                                            key={idx}
+                                            key={t.id ?? idx}
                                             className="flex items-center justify-between bg-slate-50 p-3 rounded-xl"
                                         >
                                             <div className="flex items-center gap-3">
@@ -78,15 +81,22 @@ const InfoCard: React.FC<InfoCardProps> = ({ type, title, transactions }) => {
                                                         }`}
                                                 >
                                                     {isIncome ? (
-                                                        <FiTrendingUp className="text-emerald-500" size={18} />
+                                                        <FiTrendingUp
+                                                            className="text-emerald-500"
+                                                            size={18}
+                                                        />
                                                     ) : (
-                                                        <FiTrendingDown className="text-red-500" size={18} />
+                                                        <FiTrendingDown
+                                                            className="text-red-500"
+                                                            size={18}
+                                                        />
                                                     )}
                                                 </div>
                                                 <div>
-                                                    <p className="font-medium">{t.subtitle}</p>
+                                                    <p className="font-medium">{capitalizeWords(t.title)}</p>
                                                     <p className="text-sm text-slate-500">
-                                                        {t.date} • {t.category}
+                                                        {new Date(t.transaction_date).toLocaleDateString("id-ID")}
+
                                                     </p>
                                                 </div>
                                             </div>
@@ -94,7 +104,7 @@ const InfoCard: React.FC<InfoCardProps> = ({ type, title, transactions }) => {
                                                 className={`font-semibold ${isIncome ? "text-emerald-500" : "text-red-500"
                                                     }`}
                                             >
-                                                {t.amount}
+                                                {formatAmount(t)}
                                             </p>
                                         </div>
                                     );
@@ -120,7 +130,9 @@ const InfoCard: React.FC<InfoCardProps> = ({ type, title, transactions }) => {
                                     ></div>
                                 </div>
                                 <div className={`${boxColor} p-6 rounded-xl`}>
-                                    <p className={`${statusColor} font-semibold mb-1`}>{status}</p>
+                                    <p className={`${statusColor} font-semibold mb-1`}>
+                                        {status}
+                                    </p>
                                     <p className="text-sm text-slate-500">{description}</p>
                                 </div>
                             </div>

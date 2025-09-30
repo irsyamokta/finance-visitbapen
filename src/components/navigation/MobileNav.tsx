@@ -1,16 +1,14 @@
 import { FiHome, FiLogOut } from "react-icons/fi";
 import { IoWalletOutline } from "react-icons/io5";
 import { MdOutlineAnalytics } from "react-icons/md";
-import { AiOutlinePlus } from "react-icons/ai";
 
 interface MobileNavProps {
     activeTab: string;
     setActiveTab: (tab: string) => void;
     handleLogout: () => void;
-    handleOpenModal: () => void;
 }
 
-const MobileNav: React.FC<MobileNavProps> = ({ activeTab, setActiveTab, handleLogout, handleOpenModal }) => {
+const MobileNav: React.FC<MobileNavProps> = ({ activeTab, setActiveTab, handleLogout }) => {
     const tabs = [
         { key: "dashboard", label: "Dashboard", icon: <FiHome size={22} /> },
         { key: "transactions", label: "Transaksi", icon: <IoWalletOutline size={22} /> },
@@ -38,14 +36,6 @@ const MobileNav: React.FC<MobileNavProps> = ({ activeTab, setActiveTab, handleLo
             >
                 <FiLogOut size={22} />
                 Logout
-            </button>
-
-            {/* FAB (Tambah) */}
-            <button
-                className="absolute -top-8 left-1/2 -translate-x-1/2 bg-primary text-white p-4 rounded-full shadow-lg hover:bg-primary/90 transition-colors duration-200"
-                onClick={handleOpenModal}
-            >
-                <AiOutlinePlus size={26} />
             </button>
         </nav>
     );
