@@ -1,13 +1,19 @@
 import { z } from "zod";
 
 export const transactionSchema = z.object({
-    title: z.string().min(1, "Judul transaksi wajib diisi.").max(255, "Judul transaksi maksimal 255 karakter."),
-    amount: z
-        .number({ invalid_type_error: "Jumlah transaksi harus berupa angka." })
-        .min(0, "Jumlah transaksi tidak boleh negatif."),
-    type: z.enum(["income", "expense"], { required_error: "Tipe transaksi wajib diisi." }),
-    category: z.string().min(1, "Kategori transaksi wajib diisi.").max(255, "Kategori transaksi maksimal 255 karakter."),
-    transaction_date: z.date({ required_error: "Tanggal transaksi wajib diisi." }),
+    user_id: z.string().optional(),
+    title: z.string()
+        .nonempty({ message: "Judul wajib diisi." })
+        .max(255, { message: "Judul maksimal 255 karakter." }),
+    amount: z.number()
+        .nonnegative({ message: "Jumlah tidak boleh negatif." }),
+    type: z.enum(["income", "expense"], { message: "Tipe harus pendapatan atau pengeluaran." }),
+    category: z.string()
+        .nonempty({ message: "Kategori wajib diisi." }),
+    transaction_date: z.date({ message: "Tanggal transaksi wajib diisi." }),
+    name: z.string().optional(),
+    ticket_id: z.string().optional(),
+    quantity: z.number().min(1, { message: "Jumlah pembelian minimal 1." }).optional(),
 });
 
 export type ITransactionPayload = z.infer<typeof transactionSchema>;
