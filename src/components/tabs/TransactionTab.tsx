@@ -6,6 +6,7 @@ import {
     deleteTransaction,
     exportTransaction,
 } from "../../services/transactionService";
+import { getSettings } from "../../services/settingService";
 
 import Input from "../../components/form/input/InputField";
 import Select from "../../components/form/Select";
@@ -58,6 +59,19 @@ const TransactionTab = () => {
             }),
         { revalidateOnFocus: false }
     );
+
+    const { data: response = [] } = useSWR("settingOptions", getSettings, { suspense: true });
+
+    const allCategories =
+        response
+            ?.filter((item: { category: string }) =>
+                ["Pendapatan", "Pengeluaran"].includes(item.category)
+            )
+            .map((item: { name: string }) => ({
+                value: item.name,
+                label: item.name,
+            })) ?? [];
+
 
     const transactions = data?.data?.data || [];
     const lastPage = data?.data?.last_page || 1;
@@ -148,13 +162,7 @@ const TransactionTab = () => {
                 <Select
                     options={[
                         { value: "all", label: "Semua Kategori" },
-                        { value: "Penjualan Batik", label: "Penjualan Batik" },
-                        { value: "Penjualan Tiket", label: "Penjualan Tiket" },
-                        { value: "Pemodalan", label: "Pemodalan" },
-                        { value: "Operasional", label: "Biaya Operasional" },
-                        { value: "Pemasaran", label: "Pemasaran" },
-                        { value: "Akomodasi", label: "Akomodasi" },
-                        { value: "Lainnya", label: "Lainnya" },
+                        ...allCategories,   
                     ]}
                     value={category}
                     onChange={(val) => {
@@ -224,9 +232,8 @@ const TransactionTab = () => {
                                     <TableCell className="px-4 py-3 font-medium">
                                         <div className="flex items-center gap-3">
                                             <div
-                                                className={`w-8 h-8 flex items-center justify-center rounded-lg ${
-                                                    t.type === "income" ? "bg-green-600" : "bg-red-600"
-                                                }`}
+                                                className={`w-8 h-8 flex items-center justify-center rounded-lg ${t.type === "income" ? "bg-green-600" : "bg-red-600"
+                                                    }`}
                                             >
                                                 {t.type === "income" ? (
                                                     <FiTrendingUp color="white" />
@@ -251,11 +258,10 @@ const TransactionTab = () => {
                                         {new Date(t.transaction_date).toLocaleDateString("id-ID")}
                                     </TableCell>
                                     <TableCell
-                                        className={`px-4 py-3 font-semibold ${
-                                            t.type === "income"
-                                                ? "text-green-400 whitespace-nowrap"
-                                                : "text-red-400 whitespace-nowrap"
-                                        }`}
+                                        className={`px-4 py-3 font-semibold ${t.type === "income"
+                                            ? "text-green-400 whitespace-nowrap"
+                                            : "text-red-400 whitespace-nowrap"
+                                            }`}
                                     >
                                         Rp {t.amount.toLocaleString("id-ID")}
                                     </TableCell>

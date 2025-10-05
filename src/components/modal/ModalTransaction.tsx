@@ -158,8 +158,8 @@ export const ModalTransaction = ({ isOpen, onClose, mutateData, initialData }: M
     const selectedTicket = selectedTicketId ? ticket.find((t: { id: string }) => t.id === selectedTicketId) : null;
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} className="max-w-xs xsm:max-w-sm sm:max-w-lg">
-            <div className="h-[700px] p-6 bg-white rounded-lg dark:bg-gray-900">
+        <Modal isOpen={isOpen} onClose={onClose} className="max-w-xs xsm:max-w-sm sm:max-w-lg h-[700px]">
+            <div className="h-auto p-6 bg-white rounded-lg dark:bg-gray-900">
                 <h4 className="text-xl font-semibold mb-4">
                     {initialData ? "Edit Transaksi" : "Tambah Transaksi"}
                 </h4>
