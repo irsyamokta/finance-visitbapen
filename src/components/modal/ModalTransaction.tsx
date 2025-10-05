@@ -151,20 +151,28 @@ export const ModalTransaction = ({ isOpen, onClose, mutateData, initialData }: M
             console.error(error);
             toast.error("Terjadi kesalahan saat menyimpan transaksi.");
         } finally {
-            setIsLoading(false); 
+            setIsLoading(false);
         }
     };
 
     const selectedTicket = selectedTicketId ? ticket.find((t: { id: string }) => t.id === selectedTicketId) : null;
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} className="max-w-xs xsm:max-w-sm sm:max-w-lg h-[700px]">
-            <div className="h-auto p-6 bg-white rounded-lg dark:bg-gray-900">
+        <Modal isOpen={isOpen} onClose={onClose} className="max-w-xs xsm:max-w-sm sm:max-w-[700px]">
+            <div className="no-scrollbar relative w-full max-w-[700px] max-h-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
                 <h4 className="text-xl font-semibold mb-4">
                     {initialData ? "Edit Transaksi" : "Tambah Transaksi"}
                 </h4>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" && (e.target as HTMLElement).tagName !== "TEXTAREA") {
+                            e.preventDefault();
+                        }
+                    }}
+                    className="flex flex-col gap-4"
+                >
                     <div className="grid grid-cols-1 gap-4">
                         {/* Title */}
                         <div>
