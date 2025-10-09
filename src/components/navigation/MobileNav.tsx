@@ -16,7 +16,7 @@ const MobileNav: React.FC<MobileNavProps> = ({ activeTab, setActiveTab, handleLo
     ];
 
     return (
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 grid grid-cols-4 items-center border-t border-gray-200 bg-white py-6 z-50">
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 grid grid-cols-4 items-center border-t border-gray-200 bg-white py-3 z-50">
             {tabs.map((tab) => (
                 <button
                     key={tab.key}

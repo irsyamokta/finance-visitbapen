@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router";
+import Image from "../../assets/logo/logo-white.png"
 
 export default function AuthLayout({
   children,
@@ -18,7 +19,7 @@ export default function AuthLayout({
                 <img
                   width={600}
                   height={48}
-                  src="/src/assets/logo/logo-white.png"
+                  src={Image}
                   alt="Logo"
                 />
               </Link>

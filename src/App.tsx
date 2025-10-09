@@ -13,9 +13,7 @@ import PublicRoute from "./routes/PublicRoutes";
 import SignIn from "./pages/Auth/SignIn";
 import NotFound from "./pages/Errors/NotFound";
 
-
 function App() {
-
   return (
     <>
       <AuthProvider>
