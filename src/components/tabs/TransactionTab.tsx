@@ -62,16 +62,24 @@ const TransactionTab = () => {
 
     const { data: response = [] } = useSWR("settingOptions", getSettings, { suspense: true });
 
+    const currentType =
+        user?.role === "finance_tourism" || user?.role === "admin_tourism"
+            ? "tourism"
+            : user?.role === "finance_batik" || user?.role === "admin_batik"
+                ? "batik"
+                : null;
+
     const allCategories =
         response
-            ?.filter((item: { category: string }) =>
-                ["Pendapatan", "Pengeluaran"].includes(item.category)
+            ?.filter(
+                (item: { category: string; type?: string }) =>
+                    ["Pendapatan", "Pengeluaran"].includes(item.category) &&
+                    (!currentType || item.type === currentType)
             )
             .map((item: { name: string }) => ({
                 value: item.name,
                 label: item.name,
             })) ?? [];
-
 
     const transactions = data?.data?.data || [];
     const lastPage = data?.data?.last_page || 1;
@@ -162,7 +170,7 @@ const TransactionTab = () => {
                 <Select
                     options={[
                         { value: "all", label: "Semua Kategori" },
-                        ...allCategories,   
+                        ...allCategories,
                     ]}
                     value={category}
                     onChange={(val) => {

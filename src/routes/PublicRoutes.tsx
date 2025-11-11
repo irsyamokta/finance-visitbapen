@@ -7,7 +7,7 @@ const PublicRoute = () => {
 
     if (loading) return <Spinner />;
 
-    if (user) {
+    if (user && ["finance_batik", "finance_tourism", "admin_batik", "admin_tourism"].includes(user.role)) {
         return <Navigate to={"/dashboard"} replace />;
     }
 

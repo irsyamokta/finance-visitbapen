@@ -66,7 +66,7 @@ export const exportTransaction = async (params: { start_date: string; end_date: 
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement("a");
         const now = new Date();
-        const fileName = `transactions_${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}.xlsx`;
+        const fileName = `transactions_${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}.pdf`;
         link.href = url;
         link.setAttribute("download", fileName);
         document.body.appendChild(link);

@@ -44,15 +44,36 @@ export const ModalTransaction = ({ isOpen, onClose, mutateData, initialData }: M
         label: item.title,
     }));
 
-    const incomeCategories = response?.filter((item: { category: string }) => item.category === "Pendapatan").map((item: { name: string }) => ({
-        value: item.name,
-        label: item.name,
-    })) ?? [];
+    const currentType =
+        user?.role === "finance_tourism" || user?.role === "admin_tourism"
+            ? "tourism"
+            : user?.role === "finance_batik" || user?.role === "admin_batik"
+                ? "batik"
+                : null;
 
-    const expenseCategories = response?.filter((item: { category: string }) => item.category === "Pengeluaran").map((item: { name: string }) => ({
-        value: item.name,
-        label: item.name,
-    })) ?? [];
+    const incomeCategories =
+        response
+            ?.filter(
+                (item: { category: string; type?: string }) =>
+                    item.category === "Pendapatan" &&
+                    (!currentType || item.type === currentType)
+            )
+            .map((item: { name: string }) => ({
+                value: item.name,
+                label: item.name,
+            })) ?? [];
+
+    const expenseCategories =
+        response
+            ?.filter(
+                (item: { category: string; type?: string }) =>
+                    item.category === "Pengeluaran" &&
+                    (!currentType || item.type === currentType)
+            )
+            .map((item: { name: string }) => ({
+                value: item.name,
+                label: item.name,
+            })) ?? [];
 
     const timeZone = "Asia/Jakarta";
     const {
@@ -74,6 +95,7 @@ export const ModalTransaction = ({ isOpen, onClose, mutateData, initialData }: M
             name: "",
             ticket_id: "",
             quantity: 1,
+            financier: "",
         },
     });
 
@@ -91,6 +113,7 @@ export const ModalTransaction = ({ isOpen, onClose, mutateData, initialData }: M
                 name: initialData.name || "",
                 ticket_id: initialData.ticket_id || "",
                 quantity: initialData.quantity || 1,
+                financier: initialData.financier || "",
             });
             setSelectedTicketId(initialData.ticket_id || null);
             setQuantity(initialData.quantity || 1);
@@ -105,6 +128,7 @@ export const ModalTransaction = ({ isOpen, onClose, mutateData, initialData }: M
                 name: "",
                 ticket_id: "",
                 quantity: 1,
+                financier: "",
             });
             setSelectedTicketId(null);
             setQuantity(1);
@@ -148,7 +172,6 @@ export const ModalTransaction = ({ isOpen, onClose, mutateData, initialData }: M
             onClose();
             reset();
         } catch (error: any) {
-            console.error(error);
             toast.error("Terjadi kesalahan saat menyimpan transaksi.");
         } finally {
             setIsLoading(false);
@@ -234,43 +257,58 @@ export const ModalTransaction = ({ isOpen, onClose, mutateData, initialData }: M
                     </div>
 
                     {/* Ticket Selection (only for tourism roles and income type) */}
-                    {isTourismRole && type === "income" && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <Label>Tiket</Label>
-                                <Select
-                                    options={ticketOptions}
-                                    value={selectedTicketId || ""}
-                                    onChange={(value) => setSelectedTicketId(value)}
-                                />
-                            </div>
-                            {selectedTicket && (
-                                <>
+                    {type === "income" && (
+                        <>
+                            {/* Jika kategori = Penjualan Tiket */}
+                            {isTourismRole && watch("category") === "Penjualan Tiket" && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <Label>Nama Pembeli</Label>
-                                        <Input {...register("name")} placeholder="Masukkan nama pembeli" />
-                                        {errors.name && <p className="text-sm text-red-500 mt-2">{errors.name.message}</p>}
-                                    </div>
-                                    <div>
-                                        <Label>Harga Tiket</Label>
-                                        <p className="px-4 py-2 rounded-lg bg-gray-100 text-sm text-gray-700">
-                                            {formatCurrency(selectedTicket.price)}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <Label>Jumlah Pembelian</Label>
-                                        <Input
-                                            type="number"
-                                            value={quantity}
-                                            onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                                            min={1}
-                                            className="w-full"
+                                        <Label required>Pilih Tiket</Label>
+                                        <Select
+                                            options={ticketOptions}
+                                            value={selectedTicketId || ""}
+                                            onChange={(value) => setSelectedTicketId(value)}
                                         />
-                                        {errors.quantity && <p className="text-sm text-red-500 mt-2">{errors.quantity.message}</p>}
                                     </div>
-                                </>
+
+                                    {selectedTicket && (
+                                        <>
+                                            <div>
+                                                <Label required>Nama Pembeli</Label>
+                                                <Input {...register("name")} placeholder="Masukkan nama pembeli" />
+                                                {errors.name && <p className="text-sm text-red-500 mt-2">{errors.name.message}</p>}
+                                            </div>
+
+                                            <div>
+                                                <Label>Harga Tiket</Label>
+                                                <p className="px-4 py-2 rounded-lg bg-gray-100 text-sm text-gray-700">
+                                                    {formatCurrency(selectedTicket.price)}
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <Label required>Jumlah Pembelian</Label>
+                                                <CurrencyInput
+                                                    value={quantity}
+                                                    onChange={(value) => setQuantity(value)}
+                                                    placeholder="Masukkan jumlah pembelian"
+                                                />
+                                                {errors.quantity && <p className="text-sm text-red-500 mt-2">{errors.quantity.message}</p>}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
                             )}
-                        </div>
+
+                            {/* Jika kategori = Pemodalan */}
+                            {watch("category") === "Pemodalan Wisata" || watch("category") === "Pemodalan Batik" && (
+                                <div>
+                                    <Label required>Nama Pemberi Modal</Label>
+                                    <Input {...register("financier")} placeholder="Masukkan nama pemberi modal" />
+                                    {errors.financier && <p className="text-sm text-red-500 mt-2">{errors.financier.message}</p>}
+                                </div>
+                            )}
+                        </>
                     )}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

@@ -31,7 +31,6 @@ export default function SignInForm() {
     setLoading(true);
     try {
       await login(values);
-      toast.success("Berhasil login!");
       navigate("/dashboard");
     } catch (err) {
       const error = err as AxiosError<{ message?: string }>;

@@ -92,6 +92,7 @@ export interface Transaction {
     amount: number;
     finance_role: string;
     transaction_date: string;
+    financier: string | null;
     order_id: string | null;
     created_at: string;
     updated_at: string;
