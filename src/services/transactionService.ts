@@ -77,3 +77,11 @@ export const exportTransaction = async (params: { start_date: string; end_date: 
         throw new Error("Failed to export transactions");
     }
 };
+
+export const getOrderPrintData = async (orderId: string) => {
+    const response = await api.get(`/transactions/print/${orderId}`, {
+        withCredentials: true,
+    });
+
+    return response.data;
+};

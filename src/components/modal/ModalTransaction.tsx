@@ -10,8 +10,9 @@ import { useAuth } from "../../context/AuthContext";
 import { getSettings } from "../../services/settingService";
 import { getTickets } from "../../services/ticketService";
 import { transactionSchema, ITransactionPayload } from "../../utils/validator/transactionValidator";
-import { createTransaction, updateTransaction } from "../../services/transactionService";
+import { createTransaction, getOrderPrintData, updateTransaction } from "../../services/transactionService";
 import { formatCurrency } from "../../utils/currencyFormatter";
+import { printReceipt } from "../../utils/printReceipt";
 
 import { Modal } from "../ui/modal";
 import Input from "../form/input/InputField";
@@ -146,32 +147,76 @@ export const ModalTransaction = ({ isOpen, onClose, mutateData, initialData }: M
         } else {
             setValue("ticket_id", "");
             setValue("quantity", 1);
-            setValue("name", "");
         }
     }, [selectedTicketId, quantity, setValue, ticket]);
+
+    // const onSubmit = async (data: ITransactionPayload) => {
+    //     const payload = {
+    //         ...data,
+    //         user_id: user?.id || "",
+    //         transaction_date: format(data.transaction_date, "yyyy-MM-dd HH:mm:ss", { timeZone }),
+    //     };
+
+    //     try {
+    //         setIsLoading(true);
+
+    //         if (initialData) {
+    //             await updateTransaction(initialData.id, payload);
+    //             toast.success("Transaksi berhasil diperbarui!");
+    //         } else {
+    //             await createTransaction(payload);
+    //             toast.success("Transaksi berhasil ditambahkan!");
+    //         }
+
+    //         mutateData();
+    //         onClose();
+    //         reset();
+    //     } catch (error: any) {
+    //         toast.error("Terjadi kesalahan saat menyimpan transaksi.");
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
 
     const onSubmit = async (data: ITransactionPayload) => {
         const payload = {
             ...data,
             user_id: user?.id || "",
-            transaction_date: format(data.transaction_date, "yyyy-MM-dd HH:mm:ss", { timeZone }),
+            transaction_date: format(
+                data.transaction_date,
+                "yyyy-MM-dd HH:mm:ss",
+                { timeZone }
+            ),
         };
 
         try {
             setIsLoading(true);
 
+            let response;
+
             if (initialData) {
-                await updateTransaction(initialData.id, payload);
+                response = await updateTransaction(initialData.id, payload);
                 toast.success("Transaksi berhasil diperbarui!");
             } else {
-                await createTransaction(payload);
+                response = await createTransaction(payload);
                 toast.success("Transaksi berhasil ditambahkan!");
+            }
+
+            if (
+                payload.type === "income" &&
+                payload.category === "Penjualan Tiket" &&
+                response?.data.order_id
+            ) {
+                const printData = await getOrderPrintData(response.data.order_id);
+                console.log(printData);
+                await printReceipt(printData);
+                console.log(printData);
             }
 
             mutateData();
             onClose();
             reset();
-        } catch (error: any) {
+        } catch (error) {
             toast.error("Terjadi kesalahan saat menyimpan transaksi.");
         } finally {
             setIsLoading(false);
@@ -301,7 +346,7 @@ export const ModalTransaction = ({ isOpen, onClose, mutateData, initialData }: M
                             )}
 
                             {/* Jika kategori = Pemodalan */}
-                            {watch("category") === "Pemodalan Wisata" || watch("category") === "Pemodalan Batik" && (
+                            {(watch("category") === "Pemodalan Wisata" || watch("category") === "Pemodalan Batik") && (
                                 <div>
                                     <Label required>Nama Pemberi Modal</Label>
                                     <Input {...register("financier")} placeholder="Masukkan nama pemberi modal" />
